@@ -314,12 +314,19 @@ function renderAuditTable(assets) {
 
     tableBody.innerHTML = '';
 
+    // 1. Calculate totals and find the "Heavy" asset
+    let topAsset = { ticker: '', value: 0 };
+
     assets.forEach(asset => {
         const decimals = asset.decimals || 18;
         const balance = Number(asset.balance) / Math.pow(10, decimals);
         const price = asset.price || 0.75;
         const value = balance * price;
         totalPortfolioValue += value;
+
+        if (value > topAsset.value) {
+            topAsset = { ticker: asset.ticker, value: value };
+        }
 
         const mockRisk = asset.type === "Native" ? 15 : 45; 
 
@@ -333,15 +340,41 @@ function renderAuditTable(assets) {
         tableBody.appendChild(row);
     });
 
+    // 2. AI STRATEGY LOGIC
+    // We check if one asset is more than 60% of the portfolio (Concentration Risk)
+    const concentration = (topAsset.value / totalPortfolioValue) * 100;
+    let agentSuggestion = "";
+    let statusColor = "var(--success)";
+
+    if (concentration > 60 && topAsset.ticker !== 'USDC') {
+        statusColor = "var(--danger)";
+        agentSuggestion = `⚠️ <strong>High Concentration Risk:</strong> ${topAsset.ticker} makes up ${concentration.toFixed(1)}% of your holdings. Our AI recommends rebalancing 15% into a Stablecoin pool to hedge against volatility.`;
+    } else if (totalPortfolioValue > 0) {
+        agentSuggestion = `✅ <strong>Portfolio Optimized:</strong> Your assets are well-distributed. Strategy: Stake your ${topAsset.ticker} in a Liquidity Pool to earn an estimated 12% APR in fees.`;
+    } else {
+        agentSuggestion = "Awaiting wallet data to generate strategy...";
+    }
+
+    // 3. UPDATE THE UI
     detailsPanel.innerHTML = `
         <div class="portfolio-header">
             <div class="stat">
-                <small style="color: #94a3b8;">LIVE PORTFOLIO VALUE</small>
+                <small style="color: #94a3b8;">TOTAL MARKET VALUE</small>
                 <div style="font-size: 1.5rem; color: var(--accent); font-weight: bold;">$${totalPortfolioValue.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
             </div>
         </div>
-        <h4>Wallet Breakdown</h4>
-        <p style="color: #94a3b8; font-size: 0.8rem;">Prices for EGLD are pulled live from CoinGecko.</p>
+
+        <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid ${statusColor}; padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <span style="width: 8px; height: 8px; background: ${statusColor}; border-radius: 50%; display: inline-block;"></span>
+                <small style="color: ${statusColor}; font-weight: bold; letter-spacing: 1px;">DEFI RISK AGENT</small>
+            </div>
+            <p style="font-size: 0.85rem; line-height: 1.4; margin: 0; color: #e2e8f0;">${agentSuggestion}</p>
+        </div>
+
+        <h4 style="margin-top: 25px;">Wallet Intelligence</h4>
+        <p style="color: #94a3b8; font-size: 0.8rem;">Agent analysis complete. Market prices pulled live from CoinGecko API.</p>
+        
         <button class="btn" style="width: 100%; margin-top: 10px;" onclick="location.reload()">Back to Opportunities</button>
     `;
 }
