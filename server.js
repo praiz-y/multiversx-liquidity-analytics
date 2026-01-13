@@ -78,7 +78,7 @@ app.get('/api/pool/:address', (req, res) => {
     res.json({ pool, history, scenarios });
 });
 // 2. FALLBACK ROUTE (Must be after API routes)
-app.get('*', (req, res) => {
+app.get('/*splat', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 // Start Server
