@@ -37,9 +37,42 @@
 
         /* Header */
 
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+/* Optimized Responsive Header */
+header { 
+    display: flex; 
+    flex-direction: column; /* Stack H1 and Small vertically */
+    align-items: center;    /* Center horizontally */
+    text-align: center; 
+    margin: 40px 0; 
+}
 
-        h1 { margin: 0; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent), #fff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+h1 { 
+    margin: 0; 
+    /* clamp(min, preferred, max) - scales between 1.8rem and 3rem based on screen width */
+    font-size: clamp(1.8rem, 5vw, 3rem); 
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(90deg, var(--accent), #fff); 
+    -webkit-background-clip: text; 
+    background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+    line-height: 1.2;
+}
+
+header small {
+    display: block;
+    margin-top: 10px;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+    header { margin: 20px 0; }
+    .dashboard-grid { grid-template-columns: 1fr; } /* Stack columns on mobile */
+}
 
         .btn { background: var(--accent); color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; }
 
@@ -143,10 +176,8 @@
         <div class="container">
 
             <header>
-                <div>
                     <h1>MX Liquidity Intelligence</h1>
                     <small>Real-time DeFi Analytics for MultiversX</small>
-                </div>
             </header>
 
 
@@ -494,7 +525,7 @@ const allAssets = [
 
         else if (ticker.includes("MEX") && currentPrice === 0) {
 
-            currentPrice = 0.000067; // Current real-world MEX price
+            currentPrice = 0.000001311; // Current real-world MEX price
 
         }
 
